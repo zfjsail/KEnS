@@ -70,7 +70,8 @@ def main(args):
 
     param.lang = target_lang
 
-    src_langs = ['fr', 'ja', 'es',  'el',  'en']
+    # src_langs = ['fr', 'ja', 'es',  'el',  'en']
+    src_langs = ['fr', 'ja']
     src_langs.remove(target_lang)
     # load data
     data_dir = './data/kg'
@@ -88,7 +89,7 @@ def main(args):
 
 
     # load predictions on validation set
-    df = pd.read_csv('results-val.tsv', sep='\t')  # (h,r,t) => predictions
+    df = pd.read_csv(join(model_dir, 'results-val.tsv'), sep='\t')  # (h,r,t) => predictions
     for model in langs:  # convert string to list
         df[model] = df[model].apply(lambda x: ast.literal_eval(x))
         # extract entities
