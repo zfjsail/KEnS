@@ -28,7 +28,6 @@ from src.weightlearning import *
 import argparse
 
 
-
 def set_logger(param, model_dir):
     '''
     Write logs to checkpoint and console
@@ -87,7 +86,6 @@ def main(args):
 
     langs = [target_lang] + src_langs
 
-
     # load predictions on validation set
     df = pd.read_csv(join(model_dir, 'results-val.tsv'), sep='\t')  # (h,r,t) => predictions
     for model in langs:  # convert string to list
@@ -96,7 +94,7 @@ def main(args):
         df[model] = df[model].apply(lambda x: extract_entities(x))
 
     # load predictions on test set for testing
-    test_result_file = join(model_dir,  'results-test.tsv')
+    test_result_file = join(model_dir, 'results-test.tsv')
     result = pd.read_csv(test_result_file, sep='\t')
     for lang in langs:
         result[lang] = result[lang].apply(lambda x: ast.literal_eval(x))  # convert list string to list
@@ -105,10 +103,11 @@ def main(args):
     # learn weights for all entities
     weight_df = pd.DataFrame(np.arange(num_entity), columns=['e'])
     base = {lang: filt_hits_at_n(result, lang, hr2t_train, n=10) for lang in langs}
-    weight_df['weights'] = weight_df['e'].apply(lambda e: learn_entity_specific_weights(target_lang, langs, df, e, num_entity,base))
+    weight_df['weights'] = weight_df['e'].apply(
+        lambda e: learn_entity_specific_weights(target_lang, langs, df, e, num_entity, base))
 
     wdf = weight_df.copy()
-    weights = pd.Series(wdf['weights'].values, index=wdf['e']).to_dict() # {entity: {model:weight}}
+    weights = pd.Series(wdf['weights'].values, index=wdf['e']).to_dict()  # {entity: {model:weight}}
     wdf.to_csv(join(model_dir, 'weights.tsv'), sep='\t', index=False)
 
     logging.info(f'[{target_lang}]')
@@ -121,6 +120,3 @@ def main(args):
 
 if __name__ == "__main__":
     main(parse_args())
-
-
-

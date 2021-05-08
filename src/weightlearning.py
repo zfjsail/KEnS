@@ -1,6 +1,7 @@
 import numpy as np
 import src.param as param
 
+
 def weight_matrix_from_one_triple(row, num_entity):
     # weight_matrix[i] is the datapoint weight for the entity pair (true_t, i)
     weight_matrix = np.ones(num_entity)
@@ -82,7 +83,7 @@ def learn_model_weights(langs, weight_matrix, rank_matrix):
         weight_matrix = weight_matrix * coeff
         weight_matrix = weight_matrix / np.sum(weight_matrix)  # normalize
 
-    final = {lang: w+1 for lang, w in zip(langs, lang_final_weights)}
+    final = {lang: w + 1 for lang, w in zip(langs, lang_final_weights)}
 
     return final
 
@@ -90,14 +91,15 @@ def learn_model_weights(langs, weight_matrix, rank_matrix):
 def learn_entity_specific_weights(target_lang, langs, df, e, num_entity, base):
     triples = triples_of_given_entity(df, e)
     if len(triples) <= 10:
-        return {l:1 for l in langs}
+        return {l: 1 for l in langs}
 
     subdf = triples.copy().reset_index(drop=True)
 
     # get entity pair weights and prediction correctness
     subdf['weight_matrix'] = ''
     subdf['weight_matrix'] = subdf.apply(lambda row: weight_matrix_from_one_triple(row, num_entity), axis=1)
-    subdf['rank_matrix'] = subdf.apply(lambda row: rank_matrix_from_one_triple(target_lang, row, num_entity, langs, base), axis=1)
+    subdf['rank_matrix'] = subdf.apply(
+        lambda row: rank_matrix_from_one_triple(target_lang, row, num_entity, langs, base), axis=1)
 
     # concatenate matrices for multiple triples by axis=0
     big_weight_matrix = np.concatenate(subdf['weight_matrix'].values, axis=0)

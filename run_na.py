@@ -56,7 +56,7 @@ def parse_args(args=None):
         description='Training and Testing Knowledge Graph Embedding Models',
         usage='run.py [<args>] [-h | --help]'
     )
-    parser.add_argument('-l', '--target_language', type=str, choices=['ja', 'el', 'es', 'fr', 'en'], help="target kg")
+    parser.add_argument('-l', '--target_language', default="aminer", type=str, choices=['ja', 'el', 'es', 'fr', 'en'], help="target kg")
     parser.add_argument('-m', '--knowledge_model', default='transe', type=str, choices=['transe', 'rotate'])
     parser.add_argument('--use_default', action="store_true",
                         help="Use default setting. This will override every setting except for targe_langauge and knowledge_model")
@@ -120,8 +120,8 @@ def main(args):
     target_lang = param.lang
 
     # load data
-    data_dir = './data/kg'  # where you put kg data
-    seed_dir = './data/seed_alignlinks'  # where you put seed align links data
+    data_dir = '/home/zfj/research-data/na-checking/kens-na-data/kg'  # where you put kg data
+    seed_dir = '/home/zfj/research-data/na-checking/kens-na-data/seed_alignlinks'  # where you put seed align links data
     model_dir = join('./trained_model', f'kens-{param.knowledge}-{param.dim}', target_lang)  # output
     if not os.path.exists(model_dir):
         os.makedirs(model_dir)

@@ -18,7 +18,7 @@ align_ratio = 0.8
 val_freq = 5
 margin = 0.3
 
-models = ['en', 'ja','fr','es','el']
+models = ['en', 'ja', 'fr', 'es', 'el']
 
 # model
 align_model = 'same'
@@ -31,13 +31,13 @@ knowledge = 'rotate'
 # for RotatE
 gamma = 24
 epsilon = 1e-8
+
+
 def rotate_embedding_range():
-    return (gamma+epsilon)/(dim/2)
+    return (gamma + epsilon) / (dim / 2)
 
 
 # obsolete
 src_lang = 'en'
 rrf_const = 50
 csls = False
-
-

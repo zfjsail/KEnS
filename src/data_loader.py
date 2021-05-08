@@ -5,6 +5,7 @@ import os
 from src.knowledgegraph import KnowledgeGraph
 import numpy as np
 
+
 def load_data(data_dir, language, testfile_suffix=None):
     """
     :return: triples (n_triple, 3) np.int np.array
@@ -13,12 +14,14 @@ def load_data(data_dir, language, testfile_suffix=None):
     if testfile_suffix is None:
         testfile_suffix = '-val.tsv'
 
-    train_df = pd.read_csv(join(data_dir, language + '-train.tsv'), sep='\t', header=None, names=['v1', 'relation', 'v2'])
-    val_df = pd.read_csv(join(data_dir, language + testfile_suffix), sep='\t', header=None, names=['v1', 'relation', 'v2'])
+    train_df = pd.read_csv(join(data_dir, language + '-train.tsv'), sep='\t', header=None,
+                           names=['v1', 'relation', 'v2'])
+    val_df = pd.read_csv(join(data_dir, language + testfile_suffix), sep='\t', header=None,
+                         names=['v1', 'relation', 'v2'])
 
     # count entity from entity list, not from training set, just in case training set does not include all entities
     entity_list = []
-    with open(join(os.path.dirname(data_dir),'entity', language+'.tsv'),encoding='utf-8') as f:
+    with open(join(os.path.dirname(data_dir), 'entity', language + '.tsv'), encoding='utf-8') as f:
         for line in f:
             ent = line.rstrip()
             if ent:
@@ -50,10 +53,8 @@ def load_align_links(link_dir, target_lang, src_lang):
         path = join(link_dir, file2)
         target2source = pd.read_csv(path, sep='\t', header=None).values.astype(np.int)
     else:
-        raise FileNotFoundError('Cannot find alignment file %s or %s.'%(file1, file2))
+        raise FileNotFoundError('Cannot find alignment file %s or %s.' % (file1, file2))
     return target2source
-
-
 
 
 def load_support_kgs(data_dir, align_dir, target_lang, src_langs, testfile_suffix=None):
@@ -66,25 +67,30 @@ def load_support_kgs(data_dir, align_dir, target_lang, src_langs, testfile_suffi
     supporter_kgs = []
 
     for lang in src_langs:
-        kg1_train_data, kg1_val_data, entity_list1, relation_list1 = load_data(data_dir,lang, testfile_suffix)  # use suffix 1 for supporter kg, 0 for target kg
+        kg1_train_data, kg1_val_data, entity_list1, relation_list1 = load_data(data_dir, lang,
+                                                                               testfile_suffix)  # use suffix 1 for supporter kg, 0 for target kg
 
         # two column np.array. 1st col: target lang. 2nd: source
         align_links = load_align_links(align_dir, target_lang, lang)
         align_dict_0to1 = {target2src[0]: target2src[1] for target2src in align_links}
         align_dict_1to0 = {target2src[1]: target2src[0] for target2src in align_links}
 
-        supporter = KnowledgeGraph(lang, kg1_train_data, kg1_val_data, align_dict_0to1, align_dict_1to0, len(entity_list1), len(relation_list1))
+        supporter = KnowledgeGraph(lang, kg1_train_data, kg1_val_data, align_dict_0to1, align_dict_1to0,
+                                   len(entity_list1), len(relation_list1))
         supporter_kgs.append(supporter)
     return supporter_kgs
+
 
 def load_target_kg(data_dir, target_lang, testfile_suffix=None):
     """
     :param testfile_suffix: '-val.tsv' or '-test.tsv'
     :return:
     """
-    kg_train_data, kg_val_data, entity_list1, relation_list1 = load_data(data_dir, target_lang, testfile_suffix)  # use suffix 1 for supporter kg, 0 for target kg
+    kg_train_data, kg_val_data, entity_list1, relation_list1 = load_data(data_dir, target_lang,
+                                                                         testfile_suffix)  # use suffix 1 for supporter kg, 0 for target kg
     kg = KnowledgeGraph(target_lang, kg_train_data, kg_val_data, None, None, len(entity_list1), len(relation_list1))
     return kg
+
 
 def load_align_link_table(filepath):
     """
@@ -95,6 +101,7 @@ def load_align_link_table(filepath):
     df = pd.read_csv(filepath, sep='\t')  # header [en, ja, ...] (all languages)
     return df
 
+
 def take_seed_align_links(link_df, lang1, lang2, seed_ratio):
     """
     :return:
@@ -104,7 +111,8 @@ def take_seed_align_links(link_df, lang1, lang2, seed_ratio):
     entity_size = min(link_df[lang1].count(), link_df[lang2].count())  # choose the min one between two kg entity sizes
 
     # np.random.shuffle(links)
-    return links[:int(entity_size*seed_ratio),:]
+    return links[:int(entity_size * seed_ratio), :]
+
 
 def load_all_to_all_seed_align_links(align_dir):
     seeds = {}  # { (lang1, lang2): 2-col np.array }

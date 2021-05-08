@@ -10,7 +10,6 @@ import pandas as pd
 from os.path import join
 
 
-
 def create_kNN_finder(predictor, num_entity):
     """
     kNN finder
@@ -94,7 +93,8 @@ def create_knowledge_model(num_entity, num_relation, relation_layer=None):
         entity_embedding_layer = keras.layers.Embedding(input_dim=num_entity,
                                                         output_dim=param.dim,
                                                         embeddings_regularizer=keras.regularizers.l2(param.reg_scale),
-                                                        embeddings_constraint=keras.constraints.MinMaxNorm(min_value=0.95, max_value=1.0, rate=0.7, axis=1),
+                                                        embeddings_constraint=keras.constraints.MinMaxNorm(
+                                                            min_value=0.95, max_value=1.0, rate=0.7, axis=1),
                                                         )  # shape
 
         rel_embedding_layer = keras.layers.Embedding(input_dim=num_relation,
@@ -122,14 +122,18 @@ def create_knowledge_model(num_entity, num_relation, relation_layer=None):
     if param.knowledge == 'rotate':
         # current loss is actually dist
         gm = param.gamma
-        pos_loss1 = keras.layers.Lambda(lambda dist: -tf.math.log(tf.math.softplus(gm - dist)), output_shape=(1,))(pos_loss)
-        neg_losses1 = keras.layers.Lambda(lambda dist: -tf.math.log(tf.math.softplus(dist-gm)), output_shape=(param.neg_per_pos,))(neg_losses)
+        pos_loss1 = keras.layers.Lambda(lambda dist: -tf.math.log(tf.math.softplus(gm - dist)), output_shape=(1,))(
+            pos_loss)
+        neg_losses1 = keras.layers.Lambda(lambda dist: -tf.math.log(tf.math.softplus(dist - gm)),
+                                          output_shape=(param.neg_per_pos,))(neg_losses)
         neg_loss1 = keras.layers.Lambda(lambda x: tf.reduce_mean(x, axis=-1), output_shape=(1,),
-                                       name='average_loss_over_neg_samples')(neg_losses1)
-        total_loss = keras.layers.Lambda(lambda loss: (loss[0] + loss[1]) / 2, output_shape=(1,))([pos_loss1, neg_loss1])
+                                        name='average_loss_over_neg_samples')(neg_losses1)
+        total_loss = keras.layers.Lambda(lambda loss: (loss[0] + loss[1]) / 2, output_shape=(1,))(
+            [pos_loss1, neg_loss1])
         # Model2. Main model, used for training embedding. (h,r,t) -> loss/distance/-score.
         model = keras.Model([input_h, input_r, input_t], total_loss)
-        model.compile(optimizer=keras.optimizers.Adam(lr=param.lr), loss=lambda y_true, loss: loss)  # use model output as customized loss (something to minimize)
+        model.compile(optimizer=keras.optimizers.Adam(lr=param.lr),
+                      loss=lambda y_true, loss: loss)  # use model output as customized loss (something to minimize)
     else:
         neg_loss = keras.layers.Lambda(lambda x: tf.reduce_mean(x, axis=-1), output_shape=(1,),
                                        name='average_loss_over_neg_samples')(neg_losses)
@@ -149,6 +153,7 @@ def create_knowledge_model(num_entity, num_relation, relation_layer=None):
 
     return model, predictor, kNN_finder
 
+
 def project_t(hr):
     if param.knowledge == 'transe':
         return hr[0] + hr[1]
@@ -159,8 +164,8 @@ def project_t(hr):
 
         embedding_range = param.rotate_embedding_range()
 
-        #Make phases of relations uniformly distributed in [-pi, pi]
-        phase_relation = relation/(embedding_range/pi)
+        # Make phases of relations uniformly distributed in [-pi, pi]
+        phase_relation = relation / (embedding_range / pi)
 
         re_relation = tf.cos(phase_relation)
         im_relation = tf.sin(phase_relation)
@@ -172,6 +177,7 @@ def project_t(hr):
 
         return predicted_tail
 
+
 def define_loss(t_true_pred):
     t_true = t_true_pred[0]
     t_pred = t_true_pred[1]
@@ -181,6 +187,7 @@ def define_loss(t_true_pred):
     # return tf.reduce_mean(tf.square(t_true-t_pred), axis=2)  # input shape: (None, 1, dim)
     return tf.norm(t_true - t_pred + 1e-8, axis=2)  # input shape: (None, 1, dim)
 
+
 def find_kNN(t_vec_and_embed_matrix):
     """
     :param t_vec_and_embed_matrix:
@@ -188,10 +195,12 @@ def find_kNN(t_vec_and_embed_matrix):
                 e.g., [array([[64931, 13553, 20458]]), array([[-1.008282 , -2.0292854, -3.059666]])]
     """
     predicted_t_vec = tf.squeeze(t_vec_and_embed_matrix[0])  # shape (batch_size=1, 1, dim) -> (dim,)
-    embedding_matrix = tf.reshape(t_vec_and_embed_matrix[1], [-1, param.dim])  # new shape (num_entity, dim*2), *2 for double embedding
+    embedding_matrix = tf.reshape(t_vec_and_embed_matrix[1],
+                                  [-1, param.dim])  # new shape (num_entity, dim*2), *2 for double embedding
     distance = tf.norm(tf.subtract(embedding_matrix, predicted_t_vec), axis=1)
     top_k_scores, top_k_t = tf.nn.top_k(-distance, k=param.k)  # find indices of k largest score. score = neg(distance)
-    return [tf.reshape(top_k_t, [1, param.k]), tf.reshape(top_k_scores, [1, param.k])]  # reshape to one row matrix to fit keras model output
+    return [tf.reshape(top_k_t, [1, param.k]),
+            tf.reshape(top_k_scores, [1, param.k])]  # reshape to one row matrix to fit keras model output
 
 
 def define_align_loss(v1v2v3v4):
@@ -253,7 +262,6 @@ def save_model_structure(model, output_path):
     json_string = model.to_json()
     with open(output_path, 'w') as outfile:
         outfile.write(json_string)
-
 
 
 def extend_seed_align_links(kg0, kg1, seed_links):
@@ -361,7 +369,6 @@ def extend_seed_align_links(kg0, kg1, seed_links):
                 if nearest_for_e1[e1] == true_e0:
                     # mutual e1_neighbors
                     csls_links.append([true_e0, e1])
-
 
     csls_links = np.array(csls_links)
 

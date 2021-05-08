@@ -8,6 +8,7 @@ from tensorflow import keras
 from src.modellist import AlignModel
 import json
 
+
 class KnowledgeGraph:
     def __init__(self, lang, kg_train_data, kg_val_data, dict0to1, dict1to0, num_entity, num_relation):
         self.lang = lang
@@ -29,15 +30,14 @@ class KnowledgeGraph:
 
         self.align_models_of_all = {}  # {'lang': alignment model}
 
-        self.h_train, self.r_train, self.t_train = self.data[:,0], self.data[:,1], self.data[:,2]
-        self.h_test, self.r_test, self.t_test = self.val_data[:,0], self.val_data[:,1], self.val_data[:,2]
+        self.h_train, self.r_train, self.t_train = self.data[:, 0], self.data[:, 1], self.data[:, 2]
+        self.h_test, self.r_test, self.t_test = self.val_data[:, 0], self.val_data[:, 1], self.val_data[:, 2]
         if self.is_supporter_kg():
-            self.h_train = np.concatenate([self.h_train, self.h_test], axis=0) # full KG for supporter KG
+            self.h_train = np.concatenate([self.h_train, self.h_test], axis=0)  # full KG for supporter KG
             self.r_train = np.concatenate([self.r_train, self.r_test], axis=0)
             self.t_train = np.concatenate([self.t_train, self.t_test], axis=0)
         self.y_train = np.zeros(self.h_train.shape[0])  # supporter KG results don't count
         self.y_test = np.zeros(self.h_test.shape[0])
-
 
         # See get_filtered_reordered_embedding_matrix() for more information
         # This value is initialized as None. call the above funtion will assign value to it
@@ -64,7 +64,6 @@ class KnowledgeGraph:
         if self.lang != param.lang:  # not target kg
             self.align_model = self.align_models_of_all[param.lang]  # use target kg for testing
 
-
     def sample_as_seed_links(self):
         """
         Only called during initialization,
@@ -73,9 +72,8 @@ class KnowledgeGraph:
         """
         links = np.array(list(self.dict0to1.items()))
         np.random.shuffle(links)  # shuffle
-        seed_size = int(len(links)*param.align_ratio)
+        seed_size = int(len(links) * param.align_ratio)
         return links[:seed_size, :]
-
 
     def build_alignment_model(self, other_kg):
         # self.align_model = create_alignment_model(other_kg.model, self.model)
@@ -92,7 +90,6 @@ class KnowledgeGraph:
         return relation embedding as [n_rel, dim]
         """
         return self.model.layers[4].get_weights()[0]
-
 
     def get_filtered_reordered_embedding_matrix(self, num_entity0):
         """
@@ -121,15 +118,15 @@ class KnowledgeGraph:
             if self.filtered_reordered_embedding_matrix is not None:  # computed before
                 return self.filtered_reordered_embedding_matrix
 
-        E1 = np.squeeze(np.array(self.model.layers[3].get_weights()))  # original embedding matrix. shape [num_entity1, dim]
+        E1 = np.squeeze(
+            np.array(self.model.layers[3].get_weights()))  # original embedding matrix. shape [num_entity1, dim]
         E0 = np.zeros([num_entity0, param.dim])  # shape [num_entity0, dim]
         # If an entity in target kg is not linked to the current kg, the vector stays default (all 0)
         for e0, e1 in self.dict0to1.items():
-            E0[e0,:] = E1[e1,:]
+            E0[e0, :] = E1[e1, :]
         flattened = E0.reshape([1, -1])  # flatten for feed kNN_finder
         self.filtered_reordered_embedding_matrix = flattened
         return flattened
-
 
     def get_entity_vec(self, ent):
         ent_matrix = self.model.layers[3].get_weights()[0]
@@ -139,7 +136,6 @@ class KnowledgeGraph:
         rel_matrix = self.model.layers[4].get_weights()[0]
         return rel_matrix[rel, :]
 
-
     def save_model(self, output_dir):
         """
         Save the trained knowledge model under output_dir. Filename: 'language.h5'
@@ -147,14 +143,14 @@ class KnowledgeGraph:
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
         # save the weights for the whole model
-        filename_knowledge_model = '%s.h5'%self.lang
+        filename_knowledge_model = '%s.h5' % self.lang
         keras.models.save_model(self.model, join(output_dir, filename_knowledge_model))
         # self.model.save(join(output_dir, filename_knowledge_model))
 
         # save model structure in json
-        filename_json = '%s.json'%self.lang
+        filename_json = '%s.json' % self.lang
         json_string = self.model.to_json()
-        with open(join(output_dir,filename_json), 'w') as outfile:
+        with open(join(output_dir, filename_json), 'w') as outfile:
             outfile.write(json_string)
 
     def load_model(self, model_dir):
@@ -163,10 +159,10 @@ class KnowledgeGraph:
         :param path:
         :return:
         """
-        self.model.load_weights(join(model_dir, self.lang+'.h5'))
+        self.model.load_weights(join(model_dir, self.lang + '.h5'))
 
     def load_model_from_json(self, model_dir):
-        file = join(model_dir, self.lang+'.vec.json')
+        file = join(model_dir, self.lang + '.vec.json')
         with open(file) as f:
             vecs = json.load(f)
             ent_embeddings = vecs["ent_embeddings"]
@@ -175,7 +171,6 @@ class KnowledgeGraph:
             rel_embedding_layer = self.model.layers[4]
             ent_embedding_layer.set_weights(np.array([ent_embeddings]))
             rel_embedding_layer.set_weights(np.array([rel_embeddings]))
-
 
     def populate_alignlinks(self, kg0, seed_alignlinks):
         self.filtered_reordered_embedding_matrix = None

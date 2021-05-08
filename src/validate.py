@@ -4,7 +4,8 @@ import pandas as pd
 import src.param as param
 import numpy as np
 from enum import Enum
-from src.ensemble import voting, voting_with_model_weight, voting_with_model_weight_and_rrf, filt_voting_with_model_weight
+from src.ensemble import voting, voting_with_model_weight, voting_with_model_weight_and_rrf, \
+    filt_voting_with_model_weight
 from inspect import signature
 from src.model import project_t, create_alignment_kNN_finder
 import logging
@@ -207,8 +208,6 @@ class MultiModelTester:
                                                                                            self.supporter_kgs])
         return results_df
 
-
-
     def test_voting(self, voting_function, model_weights=None):
         """
         Test specially on mode==VOTING
@@ -392,7 +391,6 @@ def hits10_with_weight_and_rrf(results, weight, model_lists):
     print('%d/%d cases do not have learned model weight' % (no_weight, results.shape[0]))
 
 
-
 def hits1(results, lang):
     """
     :param results: df, h,r,t, lang
@@ -487,7 +485,7 @@ def filt_hits_at_n(results, lang, hr2t_train, n):
         predictions = extract_entities(predictions)
         if (row['h'], row['r']) in hr2t_train:  # filter
             h, r = row['h'], row['r']
-            predictions = [e for e in predictions if e not in hr2t_train[(h,r)]]
+            predictions = [e for e in predictions if e not in hr2t_train[(h, r)]]
         predictions = predictions[:n]  # top n
         if t in predictions:
             hits += 1
@@ -535,20 +533,14 @@ def filt_ensemble_hits_at_n(results, weight, model_lists, hr2t_train, n):
     logging.info('Hits@%d (%d triples): %.4f' % (n, results.shape[0], hits_ratio))
 
 
-
-
 def hr2t_from_train_set(data_dir, target_lang):
     train_df = pd.read_csv(join(data_dir, f'{target_lang}-train.tsv'), sep='\t')
-    tripleset = set([tuple([h,r,t]) for h,r,t in (train_df.values)])
+    tripleset = set([tuple([h, r, t]) for h, r, t in (train_df.values)])
 
     hr2t = {}  # {(h,r):set(t)}
     for tp in tripleset:
-        h,r,t=tp[0],tp[1],tp[2]
-        if (h,r) not in hr2t:
-            hr2t[(h,r)] = set()
-        hr2t[(h,r)].add(t)
+        h, r, t = tp[0], tp[1], tp[2]
+        if (h, r) not in hr2t:
+            hr2t[(h, r)] = set()
+        hr2t[(h, r)].add(t)
     return hr2t
-
-
-
-
