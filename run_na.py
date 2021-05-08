@@ -88,14 +88,14 @@ def set_params(args):
             param.epoch11 = 10
             param.epoch2 = 5
             param.lr = 1e-3
-            param.dim = 300
+            param.dim = 32
             param.round = 2
         elif param.knowledge == 'rotate':
             param.epoch10 = 100
             param.epoch11 = 100
             param.epoch2 = 5
             param.lr = 1e-2
-            param.dim = 400
+            param.dim = 32
             param.round = 3
     else:
         param.dim = args.dim
