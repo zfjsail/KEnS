@@ -114,7 +114,7 @@ def main(args):
 
     target_lang = param.lang
     # src_langs = ['fr', 'ja', 'es', 'el', 'en']
-    src_langs = ['fr', 'ja']
+    src_langs = ['aminer', 'mag']
     src_langs.remove(target_lang)
 
     target_lang = param.lang
