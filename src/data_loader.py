@@ -117,8 +117,11 @@ def take_seed_align_links(link_df, lang1, lang2, seed_ratio):
 def load_all_to_all_seed_align_links(align_dir):
     seeds = {}  # { (lang1, lang2): 2-col np.array }
     for f in os.listdir(align_dir):  # e.g. 'el-en.tsv'
-        lang1 = f[0:2]
-        lang2 = f[3:5]
+        items = f.split("-")
+        lang1 = items[0]
+        items = items[1].split(".")
+        lang2 = items[0]
+        print("lang1", lang1, "lang2", lang2)
         links = pd.read_csv(join(align_dir, f), sep='\t').values.astype(int)
 
         seeds[(lang1, lang2)] = links
