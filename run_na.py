@@ -221,13 +221,12 @@ def main(args):
         param.n_test = testcases.shape[0]  # test on all training triples
         print('Loaded test cases from: %s' % testfile)
 
-        results_df = validator.test_and_record_results(testcases)
-        if suffix == '-val.tsv':
-            val_df = results_df
-        elif suffix == '-test.tsv':
-            test_df = results_df
+        # results_df = validator.test_and_record_results(testcases)
+        dists = validator.calc_test_cases_sim(testcases)
 
-        results_df.to_csv(join(output), sep='\t', index=False)
+        with open(output, "w") as wf:
+            for d in dists:
+                wf.write(str(d) + "\n")
 
 
 def test_eval(args):
@@ -253,5 +252,5 @@ def test_eval(args):
 
 
 if __name__ == "__main__":
-    # main(parse_args())
-    test_eval(parse_args())
+    main(parse_args())
+    # test_eval(parse_args())

@@ -218,12 +218,15 @@ class MultiModelTester:
 
         emb = self.target_kg.get_embedding_matrix().reshape([self.target_kg.num_entity, param.dim])
 
+        dists = []
         for i in range(samples):
             # input shape must be (1,1) to feed h,r into kNN_finder  (batch_size=1, column=1)
             h, r, t = testcases[i, 0], testcases[i, 1], testcases[i, 2]
             h, r, t = emb[h], emb[r], emb[t]
             cur_dist = np.linalg.norm(h + r - t + 1e-8)
-            print(type(cur_dist), cur_dist)
+            # print(type(cur_dist), cur_dist)
+            dists.append(cur_dist)
+        return dists
 
     def test_voting(self, voting_function, model_weights=None):
         """
