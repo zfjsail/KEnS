@@ -216,7 +216,7 @@ def main(args):
 
     for suffix in choices:
         testfile = join(data_dir, target_lang + suffix)
-        output = join(model_dir, 'results' + suffix)
+        output = join(model_dir, 'results-dist' + suffix)
         testcases = pd.read_csv(testfile, sep='\t', header=None).values
         param.n_test = testcases.shape[0]  # test on all training triples
         print('Loaded test cases from: %s' % testfile)
