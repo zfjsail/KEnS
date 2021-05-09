@@ -3,7 +3,6 @@ import time
 import pandas as pd
 import src.param as param
 import numpy as np
-import tensorflow as tf
 from enum import Enum
 from src.ensemble import voting, voting_with_model_weight, voting_with_model_weight_and_rrf, \
     filt_voting_with_model_weight
@@ -223,7 +222,7 @@ class MultiModelTester:
             # input shape must be (1,1) to feed h,r into kNN_finder  (batch_size=1, column=1)
             h, r, t = testcases[i, 0], testcases[i, 1], testcases[i, 2]
             h, r, t = emb[h], emb[r], emb[t]
-            cur_dist = tf.norm(h + r - t + 1e-8, axis=-1)
+            cur_dist = np.linalg.norm(h + r - t + 1e-8)
             print(type(cur_dist), cur_dist)
 
     def test_voting(self, voting_function, model_weights=None):
