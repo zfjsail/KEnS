@@ -230,5 +230,28 @@ def main(args):
         results_df.to_csv(join(output), sep='\t', index=False)
 
 
+def test_eval(args):
+    set_params(args)
+    target_lang = param.lang
+    src_langs = ['aminer', 'mag']
+    src_langs.remove(target_lang)
+    data_dir = '/home/zfj/research-data/na-checking/kens-na-data/kg'  # where you put kg data
+    seed_dir = '/home/zfj/research-data/na-checking/kens-na-data/seed_alignlinks'  # where you put seed align links data
+    model_dir = join('./trained_model', f'kens-{param.knowledge}-{param.dim}', target_lang)  # output
+
+    kg0 = load_target_kg(data_dir, target_lang, testfile_suffix='-val.tsv')  # target kg. KnowledgeGraph object
+    supporter_kgs = load_support_kgs(data_dir, seed_dir, target_lang, src_langs)  # list[KnowledgeGraph]
+    validator = MultiModelTester(kg0, supporter_kgs)
+    suffix = "-test.tsv"
+    output = join(model_dir, 'results' + suffix)
+    testfile = join(data_dir, target_lang + suffix)
+    testcases = pd.read_csv(testfile, sep='\t', header=None).values
+    param.n_test = testcases.shape[0]  # test on all training triples
+    print('Loaded test cases from: %s' % testfile)
+
+    results_df = validator.calc_test_cases_sim(testcases)
+
+
 if __name__ == "__main__":
-    main(parse_args())
+    # main(parse_args())
+    test_eval(parse_args())

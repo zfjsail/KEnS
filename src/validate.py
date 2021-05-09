@@ -3,6 +3,7 @@ import time
 import pandas as pd
 import src.param as param
 import numpy as np
+import tensorflow as tf
 from enum import Enum
 from src.ensemble import voting, voting_with_model_weight, voting_with_model_weight_and_rrf, \
     filt_voting_with_model_weight
@@ -207,6 +208,23 @@ class MultiModelTester:
         results_df = pd.DataFrame(results, columns=['h', 'r', 't', self.target_kg.lang] + [kg1.lang for kg1 in
                                                                                            self.supporter_kgs])
         return results_df
+
+    def calc_test_cases_sim(self, testcases):
+        time0 = time.time()
+        hits = 0
+        samples = min(param.n_test, testcases.shape[0])
+
+        results = []  # list[(h ,r, t, nominations)].
+        # nominations=list[list[(entity_idx, score)]], len(nominations)=1(target)+len(supporter_kgs)
+
+        emb = self.target_kg.get_embedding_matrix().reshape([self.target_kg.num_entity, param.dim])
+
+        for i in range(samples):
+            # input shape must be (1,1) to feed h,r into kNN_finder  (batch_size=1, column=1)
+            h, r, t = testcases[i, 0], testcases[i, 1], testcases[i, 2]
+            h, r, t = emb[h], emb[r], emb[t]
+            cur_dist = tf.norm(h + r - t + 1e-8, axis=-1)
+            print(type(cur_dist), cur_dist)
 
     def test_voting(self, voting_function, model_weights=None):
         """
