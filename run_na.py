@@ -143,10 +143,11 @@ def main(args):
     supporter_kgs = load_support_kgs(data_dir, seed_dir, target_lang, src_langs)  # list[KnowledgeGraph]
     # supporter KG use all links to train
     for kg1 in supporter_kgs:
-        kg1.h_train = np.concatenate([kg1.h_train, kg1.h_test], axis=0)
-        kg1.r_train = np.concatenate([kg1.r_train, kg1.r_test], axis=0)
-        kg1.t_train = np.concatenate([kg1.t_train, kg1.t_test], axis=0)
-        kg1.y_train = np.zeros(kg1.h_train.shape[0])
+        # kg1.h_train = np.concatenate([kg1.h_train, kg1.h_test], axis=0)
+        # kg1.r_train = np.concatenate([kg1.r_train, kg1.r_test], axis=0)
+        # kg1.t_train = np.concatenate([kg1.t_train, kg1.t_test], axis=0)
+        # kg1.y_train = np.zeros(kg1.h_train.shape[0])
+        pass
 
     # seed alignment links
     seed_alignlinks = load_all_to_all_seed_align_links(seed_dir)  # {(lang1, lang2): 2-col np.array}
@@ -178,6 +179,7 @@ def main(args):
             for other_kg in all_kgs:
                 if other_kg.lang != kg.lang and (other_kg.lang, kg.lang) in seed_alignlinks:
                     print(f'self learning[{kg.lang}][{other_kg.lang}]')
+                    logging.info("logging for time")
                     seeds = seed_alignlinks[(other_kg.lang, kg.lang)]
                     found = extend_seed_align_links(other_kg, kg, seeds)
                     if len(found) > 0:  # not []
@@ -278,6 +280,6 @@ def test_eval(args):
 
 
 if __name__ == "__main__":
-    # main(parse_args())
+    main(parse_args())
     # test_eval(parse_args())
-    eval_test_na()
+    # eval_test_na()
