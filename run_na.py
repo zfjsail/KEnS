@@ -26,8 +26,10 @@ from src.data_loader import load_support_kgs, load_target_kg, load_all_to_all_se
 from src.validate import MultiModelTester, TestMode, test_alignment_hits10
 import numpy as np
 import logging
+from sklearn.metrics import roc_auc_score
 from src.model import extend_seed_align_links
 import argparse
+import utils
 
 
 def set_logger(param, model_dir):
@@ -229,6 +231,30 @@ def main(args):
                 wf.write(str(d) + "\n")
 
 
+def eval_test_na():
+    file_dir = "/home/zfj/research-data/na-checking/aminer-label-correct"
+    pairs_test = utils.load_json(file_dir, "eval_na_checking_pairs_test.json")
+
+    model_dir = join('./trained_model', 'kens-transe-32', "aminer")  # output
+    dists = []
+    with open(join(model_dir, "results-dist-test.tsv")) as rf:
+        for line in rf:
+            dists.append(float(line.strip()))
+
+    labels = []
+    for pair in pairs_test:
+        cur_label = pair["label"]
+        if cur_label == 1:
+            labels.append(0)
+        elif cur_label == 0:
+            labels.append(1)
+        else:
+            raise
+
+    auc = roc_auc_score(labels, dists)
+    print("kens auc", auc)
+
+
 def test_eval(args):
     set_params(args)
     target_lang = param.lang
@@ -252,5 +278,6 @@ def test_eval(args):
 
 
 if __name__ == "__main__":
-    main(parse_args())
+    # main(parse_args())
     # test_eval(parse_args())
+    eval_test_na()
