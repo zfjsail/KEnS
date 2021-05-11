@@ -86,9 +86,9 @@ def set_params(args):
 
     if args.use_default:
         if param.knowledge == 'transe':
-            param.epoch10 = 10
-            param.epoch11 = 10
-            param.epoch2 = 25
+            param.epoch10 = 20
+            param.epoch11 = 20
+            param.epoch2 = 5
             param.lr = 1e-3
             param.dim = 32
             param.round = 2
@@ -165,6 +165,7 @@ def main(args):
 
     for i in range(param.round):
         # train alignment model
+        logging.info("training alignment model...")
         for kg in all_kgs:
             # align it with everything else
             for other_lang, align_model in kg.align_models_of_all.items():
@@ -174,6 +175,8 @@ def main(args):
                     align_model.fit([align_links[:, 0], align_links[:, 1]], np.zeros(align_links.shape[0]),
                                     epochs=param.epoch2, batch_size=param.batch_size, shuffle=True, )
 
+        print("\n\n")
+        logging.info("**********************************")
         # self-learning
         """
         for kg in all_kgs:
@@ -189,8 +192,10 @@ def main(args):
         """
 
         # train knowledge model
+        logging.info("training target kg model")
         kg0.model.fit([kg0.h_train, kg0.r_train, kg0.t_train], kg0.y_train,
                       epochs=param.epoch10, batch_size=param.batch_size, shuffle=True, )
+        logging.info("training support kg model")
         for kg1 in supporter_kgs:
             kg1.model.fit([kg1.h_train, kg1.r_train, kg1.t_train], kg1.y_train,
                           epochs=param.epoch11, batch_size=param.batch_size, shuffle=True, )
