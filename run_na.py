@@ -86,8 +86,8 @@ def set_params(args):
 
     if args.use_default:
         if param.knowledge == 'transe':
-            param.epoch10 = 20
-            param.epoch11 = 20
+            param.epoch10 = 10
+            param.epoch11 = 10
             param.epoch2 = 5
             param.lr = 1e-3
             param.dim = 32
