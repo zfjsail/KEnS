@@ -175,6 +175,7 @@ def main(args):
                                     epochs=param.epoch2, batch_size=param.batch_size, shuffle=True, )
 
         # self-learning
+        """
         for kg in all_kgs:
             for other_kg in all_kgs:
                 if other_kg.lang != kg.lang and (other_kg.lang, kg.lang) in seed_alignlinks:
@@ -185,6 +186,7 @@ def main(args):
                     if len(found) > 0:  # not []
                         new_seeds = np.concatenate([seeds, found], axis=0)
                         seed_alignlinks[(other_kg.lang, kg.lang)] = new_seeds
+        """
 
         # train knowledge model
         kg0.model.fit([kg0.h_train, kg0.r_train, kg0.t_train], kg0.y_train,
@@ -282,6 +284,6 @@ def test_eval(args):
 
 
 if __name__ == "__main__":
-    # main(parse_args())
+    main(parse_args())
     # test_eval(parse_args())
-    eval_test_na()
+    # eval_test_na()
