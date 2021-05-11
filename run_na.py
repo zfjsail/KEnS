@@ -289,6 +289,6 @@ def test_eval(args):
 
 
 if __name__ == "__main__":
-    main(parse_args())
+    # main(parse_args())
     # test_eval(parse_args())
-    # eval_test_na()
+    eval_test_na()
