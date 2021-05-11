@@ -33,9 +33,10 @@ class KnowledgeGraph:
         self.h_train, self.r_train, self.t_train = self.data[:, 0], self.data[:, 1], self.data[:, 2]
         self.h_test, self.r_test, self.t_test = self.val_data[:, 0], self.val_data[:, 1], self.val_data[:, 2]
         if self.is_supporter_kg():
-            self.h_train = np.concatenate([self.h_train, self.h_test], axis=0)  # full KG for supporter KG
-            self.r_train = np.concatenate([self.r_train, self.r_test], axis=0)
-            self.t_train = np.concatenate([self.t_train, self.t_test], axis=0)
+            # self.h_train = np.concatenate([self.h_train, self.h_test], axis=0)  # full KG for supporter KG
+            # self.r_train = np.concatenate([self.r_train, self.r_test], axis=0)
+            # self.t_train = np.concatenate([self.t_train, self.t_test], axis=0)
+            pass
         self.y_train = np.zeros(self.h_train.shape[0])  # supporter KG results don't count
         self.y_test = np.zeros(self.h_test.shape[0])
 
