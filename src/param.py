@@ -14,7 +14,7 @@ round = 1
 align_lr = 1e-3
 verbose = False
 n_fold = 10
-align_ratio = 0.8
+align_ratio = 1.0
 val_freq = 5
 margin = 0.3
 
