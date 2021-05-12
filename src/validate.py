@@ -217,6 +217,7 @@ class MultiModelTester:
         # nominations=list[list[(entity_idx, score)]], len(nominations)=1(target)+len(supporter_kgs)
 
         emb = self.target_kg.get_embedding_matrix().reshape([self.target_kg.num_entity, param.dim])
+        rel_emb = self.target_kg.get_relation_matrix().reshape([self.target_kg.num_relation, param.dim])
 
         embs_s = []
         for sup_kg in self.supporter_kgs:
@@ -227,11 +228,12 @@ class MultiModelTester:
         for i in range(samples):
             # input shape must be (1,1) to feed h,r into kNN_finder  (batch_size=1, column=1)
             h, r, t = testcases[i, 0], testcases[i, 1], testcases[i, 2]
-            h0, r0, t0 = emb[h], emb[r], emb[t]
+            h0, r0, t0 = emb[h], rel_emb[r], emb[t]
             cur_dist = np.linalg.norm(h0 + r0 - t0 + 1e-8)
             # print(type(cur_dist), cur_dist)
 
             # transfer from support kgs
+            """
             n_dist = 1
             for j, sup_kg in enumerate(self.supporter_kgs):
                 if h not in sup_kg.dict0to1:
@@ -243,12 +245,14 @@ class MultiModelTester:
                 emb_s = embs_s[j]
                 h1 = emb_s[h1]
                 t1 = emb_s[t1]
-                other_dist = np.linalg.norm(h1 + r0 - t1 + 1e-8)
-                # cur_dist += other_dist
+                r1 = emb_s[r]
+                other_dist = np.linalg.norm(h1 + r1 - t1 + 1e-8)
+                cur_dist += other_dist
                 # cur_dist += 0
-                # n_dist += 1
-                cur_dist = min(cur_dist, other_dist)
-            # cur_dist /= n_dist
+                n_dist += 1
+                # cur_dist = min(cur_dist, other_dist)
+            cur_dist /= n_dist
+            """
 
             dists.append(cur_dist)
         return dists
