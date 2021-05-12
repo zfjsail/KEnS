@@ -234,7 +234,7 @@ class MultiModelTester:
                 h1 = sup_kg.dict0to1[h]
                 if t not in sup_kg.dict0to1:
                     continue
-                t1 = sup_kg.sup_kg.dict0to1[t]
+                t1 = sup_kg.dict0to1[t]
                 emb_s = sup_kg.get_embedding_matrix().reshape([sup_kg.num_entity, param.dim])
                 h1 = emb_s[h1]
                 t1 = emb_s[t1]
