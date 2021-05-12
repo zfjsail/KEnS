@@ -249,11 +249,11 @@ class MultiModelTester:
                 t1 = emb_s[t1]
                 r1 = rel_embs_s[j][r]
                 other_dist = np.linalg.norm(h1 + r1 - t1 + 1e-8)
-                cur_dist += other_dist
+                # cur_dist += other_dist
                 # cur_dist += 0
-                n_dist += 1
-                # cur_dist = min(cur_dist, other_dist)
-            cur_dist /= n_dist
+                # n_dist += 1
+                cur_dist = min(cur_dist, other_dist)
+            # cur_dist /= n_dist
 
             dists.append(cur_dist)
         return dists
