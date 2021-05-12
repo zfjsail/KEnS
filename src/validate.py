@@ -220,9 +220,12 @@ class MultiModelTester:
         rel_emb = self.target_kg.get_relation_matrix().reshape([self.target_kg.num_relation, param.dim])
 
         embs_s = []
+        rel_embs_s = []
         for sup_kg in self.supporter_kgs:
             emb_s = sup_kg.get_embedding_matrix().reshape([sup_kg.num_entity, param.dim])
+            rel_emb_s = sup_kg.get_relation_matrix().reshape([sup_kg.num_relation, param.dim])
             embs_s.append(emb_s)
+            rel_embs_s.append(rel_emb_s)
 
         dists = []
         for i in range(samples):
@@ -233,7 +236,6 @@ class MultiModelTester:
             # print(type(cur_dist), cur_dist)
 
             # transfer from support kgs
-            """
             n_dist = 1
             for j, sup_kg in enumerate(self.supporter_kgs):
                 if h not in sup_kg.dict0to1:
@@ -245,14 +247,13 @@ class MultiModelTester:
                 emb_s = embs_s[j]
                 h1 = emb_s[h1]
                 t1 = emb_s[t1]
-                r1 = emb_s[r]
+                r1 = rel_embs_s[j][r]
                 other_dist = np.linalg.norm(h1 + r1 - t1 + 1e-8)
                 cur_dist += other_dist
                 # cur_dist += 0
                 n_dist += 1
                 # cur_dist = min(cur_dist, other_dist)
             cur_dist /= n_dist
-            """
 
             dists.append(cur_dist)
         return dists
