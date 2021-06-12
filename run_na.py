@@ -20,6 +20,7 @@ if './' not in sys.path:
 
 from numpy.linalg import norm
 import pandas as pd
+from sklearn.metrics import average_precision_score
 import src.param as param
 from src.model import save_model_structure
 from src.data_loader import load_support_kgs, load_target_kg, load_all_to_all_seed_align_links
@@ -58,7 +59,8 @@ def parse_args(args=None):
         description='Training and Testing Knowledge Graph Embedding Models',
         usage='run.py [<args>] [-h | --help]'
     )
-    parser.add_argument('-l', '--target_language', default="aminer", type=str, choices=['ja', 'el', 'es', 'fr', 'en'], help="target kg")
+    parser.add_argument('-l', '--target_language', default="aminer", type=str, choices=['ja', 'el', 'es', 'fr', 'en'],
+                        help="target kg")
     parser.add_argument('-m', '--knowledge_model', default='transe', type=str, choices=['transe', 'rotate'])
     parser.add_argument('--use_default', action="store_true",
                         help="Use default setting. This will override every setting except for targe_langauge and knowledge_model")
@@ -241,7 +243,7 @@ def main(args):
 
 
 def eval_test_na():
-    file_dir = "/home/zfj/research-data/na-checking/aminer-label-correct"
+    file_dir = "/home/zfj/research-data/na-checking/aminer-new1"
     pairs_test = utils.load_json(file_dir, "eval_na_checking_pairs_test.json")
 
     model_dir = join('./trained_model', 'kens-transe-32', "aminer")  # output
@@ -249,7 +251,7 @@ def eval_test_na():
     with open(join(model_dir, "results-dist-test.tsv")) as rf:
         for line in rf:
             d = float(line.strip())
-            d = 1/(1 + np.exp(-d))
+            d = 1 / (1 + np.exp(-d))
             dists.append(d)
 
     labels = []
@@ -264,6 +266,8 @@ def eval_test_na():
 
     auc = roc_auc_score(labels, dists)
     print("kens auc", auc)
+    maps = average_precision_score(labels, dists)
+    print("kens map", maps)
 
 
 def test_eval(args):
