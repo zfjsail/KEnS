@@ -244,7 +244,7 @@ def main(args):
 
 def eval_test_na():
     file_dir = "/home/zfj/research-data/na-checking/aminer-new1"
-    pairs_test = utils.load_json(file_dir, "eval_na_checking_pairs_test.json")
+    pairs_test = utils.load_json(file_dir, "eval_na_checking_pairs_conna_filter_test.json")
 
     model_dir = join('./trained_model', 'kens-transe-32', "aminer")  # output
     dists = []
