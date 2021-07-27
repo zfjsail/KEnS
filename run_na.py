@@ -246,7 +246,7 @@ def eval_test_na():
     file_dir = "/home/zfj/research-data/na-checking/aminer-new1"
     pairs_test = utils.load_json(file_dir, "eval_na_checking_pairs_conna_filter_test.json")
 
-    model_dir = join('./trained_model', 'kens-transe-32', "aminer")  # output
+    model_dir = join('./trained_model', 'kens-transe-400', "aminer")  # output
     dists = []
     with open(join(model_dir, "results-dist-test.tsv")) as rf:
         for line in rf:
@@ -293,6 +293,6 @@ def test_eval(args):
 
 
 if __name__ == "__main__":
-    main(parse_args())
+    # main(parse_args())
     # test_eval(parse_args())
     eval_test_na()
