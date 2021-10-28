@@ -5,9 +5,12 @@ from os.path import join
 import numpy as np
 import pandas as pd
 import logging
+from collections import defaultdict as dd
+from sklearn.metrics import roc_auc_score, average_precision_score
 from src.data_loader import load_support_kgs, load_target_kg, load_all_to_all_seed_align_links
 from src.validate import MultiModelTester, TestMode, test_alignment_hits10
 from src.model import save_model_structure
+import utils
 
 
 def set_logger(param, model_dir):
@@ -199,6 +202,44 @@ def main(args):
                 wf.write(str(d) + "\n")
 
 
+def eval_test_na():
+    file_dir = "/home/zfj/research-data/na-checking/kddcup"
+    pairs_test = utils.load_json(file_dir, "eval_na_checking_triplets_test_idx_clean.json")
+
+    model_dir = join('./trained_model', 'kens-transe-400', "mag")  # output
+    dists = []
+    with open(join(model_dir, "results-dist-test.tsv")) as rf:
+        for line in rf:
+            d = float(line.strip())
+            d = 1 / (1 + np.exp(-d))
+            dists.append(d)
+
+    aid_to_label = dd(list)
+    aid_to_score = dd(list)
+    for i, pair in enumerate(pairs_test):
+        aid = pair["aid1"]
+        aid_to_label[aid].append(1-pair["label"])
+        aid_to_score[aid].append(dists[i])
+
+    map_sum = 0
+    map_weight = 0
+    auc_sum = 0
+    n_authors = 0
+    for aid in aid_to_label:
+        cur_n_pids = len(aid_to_label[aid])
+        cur_labels = aid_to_label[aid]
+        if sum(cur_labels)/len(cur_labels) >= 0.5 or sum(cur_labels) == 0 or cur_n_pids < 5:
+            continue
+        n_authors += 1
+        cur_map = average_precision_score(aid_to_label[aid], aid_to_score[aid])
+        map_sum += cur_map/len(aid_to_label[aid])
+        map_weight += 1/ len(aid_to_label[aid])
+        auc_sum += roc_auc_score(aid_to_label[aid], aid_to_score[aid])
+    map_avg = map_sum/map_weight
+    auc_avg = auc_sum / n_authors
+    print("auc avg", auc_avg, "map avg", map_avg)
+
+
 if __name__ == "__main__":
-    main(parse_args())
-    
+    # main(parse_args())
+    eval_test_na()
