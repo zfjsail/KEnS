@@ -28,6 +28,7 @@ from src.validate import MultiModelTester, TestMode, test_alignment_hits10
 import numpy as np
 import logging
 from sklearn.metrics import roc_auc_score
+from collections import defaultdict as dd
 from src.model import extend_seed_align_links
 import argparse
 import utils
@@ -270,6 +271,51 @@ def eval_test_na():
     print("kens map", maps)
 
 
+def eval_test_na_2():
+    file_dir = "/home/zfj/research-data/na-checking/aminer-new1"
+    pairs_test = utils.load_json(file_dir, "eval_na_checking_pairs_conna_filter_test.json")
+
+    model_dir = join('./trained_model', 'kens-transe-400', "aminer")  # output
+    dists = []
+    with open(join(model_dir, "results-dist-test.tsv")) as rf:
+        for line in rf:
+            d = float(line.strip())
+            d = 1 / (1 + np.exp(-d))
+            dists.append(d)
+
+    pairs_test_new = utils.load_json(file_dir, "eval_na_checking_triplets_test_idx_clean.json")
+    aid_to_test_pids_new = dd(set)
+    for pair in pairs_test_new:
+        aid_to_test_pids_new[pair["aid1"]].add(pair["pid"].split("-")[0])
+
+    aid_to_label = dd(list)
+    aid_to_score = dd(list)
+    for i, pair in enumerate(pairs_test):
+        pid = pair["pid"]
+        aid = pair["aid1"]
+        if str(pid) in aid_to_test_pids_new.get(aid, set()):
+            aid_to_label[aid].append(1-pair["label"])
+            aid_to_score[aid].append(dists[i])
+
+    map_sum = 0
+    map_weight = 0
+    auc_sum = 0
+    n_authors = 0
+    for aid in aid_to_label:
+        cur_n_pids = len(aid_to_label[aid])
+        cur_labels = aid_to_label[aid]
+        if sum(cur_labels)/len(cur_labels) >= 0.5 or sum(cur_labels) == 0 or cur_n_pids < 5:
+            continue
+        n_authors += 1
+        cur_map = average_precision_score(aid_to_label[aid], aid_to_score[aid])
+        map_sum += cur_map/len(aid_to_label[aid])
+        map_weight += 1/ len(aid_to_label[aid])
+        auc_sum += roc_auc_score(aid_to_label[aid], aid_to_score[aid])
+    map_avg = map_sum/map_weight
+    auc_avg = auc_sum / n_authors
+    print("auc avg", auc_avg, "map avg", map_avg)
+
+
 def test_eval(args):
     set_params(args)
     target_lang = param.lang
@@ -295,4 +341,5 @@ def test_eval(args):
 if __name__ == "__main__":
     # main(parse_args())
     # test_eval(parse_args())
-    eval_test_na()
+    # eval_test_na()
+    eval_test_na_2()
