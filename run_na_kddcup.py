@@ -234,12 +234,16 @@ def eval_test_na():
         cur_map = average_precision_score(aid_to_label[aid], aid_to_score[aid])
         map_sum += cur_map/len(aid_to_label[aid])
         map_weight += 1/ len(aid_to_label[aid])
-        auc_sum += roc_auc_score(aid_to_label[aid], aid_to_score[aid])
+        # auc_sum += roc_auc_score(aid_to_label[aid], aid_to_score[aid])
+        cur_auc = roc_auc_score(aid_to_label[aid], aid_to_score[aid])
+        auc_sum += cur_auc/len(aid_to_label[aid])
     map_avg = map_sum/map_weight
-    auc_avg = auc_sum / n_authors
+    # auc_avg = auc_sum / n_authors
+    auc_avg = auc_sum / map_weight
     print("auc avg", auc_avg, "map avg", map_avg)
 
 
 if __name__ == "__main__":
     # main(parse_args())
     eval_test_na()
+    
