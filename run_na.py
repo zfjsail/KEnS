@@ -273,7 +273,8 @@ def eval_test_na():
 
 def eval_test_na_2():
     file_dir = "/home/zfj/research-data/na-checking/aminer-new1"
-    pairs_test = utils.load_json(file_dir, "eval_na_checking_pairs_conna_filter_test.json")
+    # pairs_test = utils.load_json(file_dir, "eval_na_checking_pairs_conna_filter_test.json")
+    pairs_test = utils.load_json(file_dir, "eval_na_checking_triplets_test_idx_hard1.json")
 
     model_dir = join('./trained_model', 'kens-transe-400', "aminer")  # output
     dists = []
@@ -287,7 +288,8 @@ def eval_test_na_2():
     # pairs_test_new = utils.load_json(file_dir, "eval_na_checking_triplets_test_idx_clean.json")
     aid_to_test_pids_new = dd(set)
     for pair in pairs_test_new:
-        aid_to_test_pids_new[pair["aid1"]].add(pair["pid"].split("-")[0])
+        # aid_to_test_pids_new[pair["aid1"]].add(pair["pid"].split("-")[0])
+        aid_to_test_pids_new[pair["aid1"]].add(pair["pid"])
 
     aid_to_label = dd(list)
     aid_to_score = dd(list)
@@ -343,7 +345,7 @@ def test_eval(args):
 
 
 if __name__ == "__main__":
-    main(parse_args())
+    # main(parse_args())
     # test_eval(parse_args())
     # eval_test_na()
-    # eval_test_na_2()
+    eval_test_na_2()
