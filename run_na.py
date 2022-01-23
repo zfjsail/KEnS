@@ -283,7 +283,8 @@ def eval_test_na_2():
             d = 1 / (1 + np.exp(-d))
             dists.append(d)
 
-    pairs_test_new = utils.load_json(file_dir, "eval_na_checking_triplets_test_idx_clean.json")
+    pairs_test_new = utils.load_json(file_dir, "eval_na_checking_triplets_test_idx_hard1.json")
+    # pairs_test_new = utils.load_json(file_dir, "eval_na_checking_triplets_test_idx_clean.json")
     aid_to_test_pids_new = dd(set)
     for pair in pairs_test_new:
         aid_to_test_pids_new[pair["aid1"]].add(pair["pid"].split("-")[0])
@@ -310,9 +311,12 @@ def eval_test_na_2():
         cur_map = average_precision_score(aid_to_label[aid], aid_to_score[aid])
         map_sum += cur_map/len(aid_to_label[aid])
         map_weight += 1/ len(aid_to_label[aid])
-        auc_sum += roc_auc_score(aid_to_label[aid], aid_to_score[aid])
+        # auc_sum += roc_auc_score(aid_to_label[aid], aid_to_score[aid])
+        cur_auc = roc_auc_score(aid_to_label[aid], aid_to_score[aid])
+        auc_sum += cur_auc/len(aid_to_label[aid])
     map_avg = map_sum/map_weight
-    auc_avg = auc_sum / n_authors
+    # auc_avg = auc_sum / n_authors
+    auc_avg = auc_sum/map_weight
     print("auc avg", auc_avg, "map avg", map_avg)
 
 
@@ -339,7 +343,7 @@ def test_eval(args):
 
 
 if __name__ == "__main__":
-    main(parse_args())
+    # main(parse_args())
     # test_eval(parse_args())
-    eval_test_na()
+    # eval_test_na()
     eval_test_na_2()

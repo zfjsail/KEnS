@@ -246,4 +246,3 @@ def eval_test_na():
 if __name__ == "__main__":
     # main(parse_args())
     eval_test_na()
-    
