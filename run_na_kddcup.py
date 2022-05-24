@@ -204,7 +204,8 @@ def main(args):
 
 def eval_test_na():
     file_dir = "/home/zfj/research-data/na-checking/kddcup"
-    pairs_test = utils.load_json(file_dir, "eval_na_checking_triplets_test_idx_clean.json")
+    # pairs_test = utils.load_json(file_dir, "eval_na_checking_triplets_test_idx_clean.json")
+    pairs_test = utils.load_json(file_dir, "eval_na_checking_triplets_relabel1_test.json")
 
     model_dir = join('./trained_model', 'kens-transe-400', "mag")  # output
     dists = []
@@ -213,6 +214,8 @@ def eval_test_na():
             d = float(line.strip())
             d = 1 / (1 + np.exp(-d))
             dists.append(d)
+
+    assert len(pairs_test) == len(dists)
 
     aid_to_label = dd(list)
     aid_to_score = dd(list)
