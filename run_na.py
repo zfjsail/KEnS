@@ -76,7 +76,7 @@ def parse_args(args=None):
                         help="how many align model epoch to train before switching to knowledge model")
     parser.add_argument('--knowledge_step_ratio', default=2, type=float,
                         help="how many knowledge model epochs for each align epoch")
-    parser.add_argument('--round', default=5, type=float,
+    parser.add_argument('--round', default=2, type=float,
                         help="how many rounds to train")
     parser.add_argument('-k', default=10, type=int, help="how many nominations to consider")
 
@@ -272,9 +272,11 @@ def eval_test_na():
 
 
 def eval_test_na_2():
-    file_dir = "/home/zfj/research-data/na-checking/aminer-new1"
+    # file_dir = "/home/zfj/research-data/na-checking/aminer-new1"
+    file_dir = "/home/zfj/research-data/na-checking/aminer"
     # pairs_test = utils.load_json(file_dir, "eval_na_checking_pairs_conna_filter_test.json")
-    pairs_test = utils.load_json(file_dir, "eval_na_checking_triplets_test_idx_hard1.json")
+    # pairs_test = utils.load_json(file_dir, "eval_na_checking_triplets_test_idx_hard1.json")
+    pairs_test = utils.load_json(file_dir, "eval_na_checking_triplets_relabel1_test.json")
 
     model_dir = join('./trained_model', 'kens-transe-400', "aminer")  # output
     dists = []
@@ -284,12 +286,15 @@ def eval_test_na_2():
             d = 1 / (1 + np.exp(-d))
             dists.append(d)
 
-    pairs_test_new = utils.load_json(file_dir, "eval_na_checking_triplets_test_idx_hard1.json")
+    # pairs_test_new = utils.load_json(file_dir, "eval_na_checking_triplets_test_idx_hard1.json")
+    pairs_test_new = utils.load_json(file_dir, "eval_na_checking_triplets_relabel1_test.json")
     # pairs_test_new = utils.load_json(file_dir, "eval_na_checking_triplets_test_idx_clean.json")
     aid_to_test_pids_new = dd(set)
     for pair in pairs_test_new:
         # aid_to_test_pids_new[pair["aid1"]].add(pair["pid"].split("-")[0])
         aid_to_test_pids_new[pair["aid1"]].add(pair["pid"])
+
+    assert len(dists) == len(pairs_test)
 
     aid_to_label = dd(list)
     aid_to_score = dd(list)
@@ -345,7 +350,7 @@ def test_eval(args):
 
 
 if __name__ == "__main__":
-    main(parse_args())
+    # main(parse_args())
     # test_eval(parse_args())
     # eval_test_na()
 
